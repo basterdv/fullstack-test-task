@@ -5,9 +5,14 @@ services:
     container_name: backend
     volumes:
       - ./backend:/backend
+    healthcheck: # Добавил проверку т.к. бэк не стартует сразу
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 3s
+      timeout: 5s
+      retries: 5
     env_file: ".env.dev"
     ports:
-      - "8000:8000"
+      - "8001:8000"
     depends_on:
       - backend-db
 
@@ -25,10 +30,11 @@ services:
     image: postgres:latest
     container_name: backend-db
     ports:
-      - "5433:5433"
+      - "5433:5432"
     env_file: ".env.dev"
     volumes:
       - backend-db-volume:/var/lib/postgresql
+
 
   backend-redis:
     image: redis:latest
